@@ -1,47 +1,46 @@
 #!/bin/bash
 
-# Check if at least 3 arguments are provided
+# check 3 arguments min
 if [ "$#" -lt 3 ]; then
+    echo "Attendance Reporting System by Gong Tianyi"
     echo "Usage: $0 <department_files...> <special_marker> <employee_ids...>"
+    echo "You can type in ||||| ./attendance_report.sh hkpolyu* employee 1002 1004 1001 ||||| for example."
     exit 1
 fi
 
-# Extract arguments
+# extract arguments
 dept_files=()
 emp_ids=()
-emp_section=0
 special_marker=""
+emp_section=0
 
 for arg in "$@"; do
     if [ "$emp_section" -eq 1 ]; then
         emp_ids+=("$arg")
+    elif [[ "$arg" == *.dat ]]; then
+        dept_files+=("$arg")
     elif [ "$emp_section" -eq 0 ]; then
-        if [ "$arg" == "employee" ]; then
-            special_marker="employees.dat"
-            emp_section=1
-        else
-            dept_files+=("$arg")
-        fi
-    else
         special_marker="$arg.dat"
         emp_section=1
-        echo "now $special_marker"
+        if [ "$arg" == "employee" ]; then
+            special_marker="employees.dat"
+        fi
     fi
 done
 
-# Check if at least one department file and one employee ID are provided
-if [ "${#dept_files[@]}" -eq 0 ] || [ "${#emp_ids[@]}" -eq 0 ]; then
+
+if [ "${#dept_files[@]}" -eq 0 ] || [ "${#emp_ids[@]}" -eq 0 ] || [ -z "$special_marker" ]; then
     echo "Usage: $0 <department_files...> <special_marker> <employee_ids...>"
     exit 1
 fi
 
-# Check if the special marker data file exists
+# check file existence
 if [ ! -f "$special_marker" ]; then
     echo "Error: File $special_marker does not exist."
     exit 1
 fi
 
-# Read employee/student names from the data file
+# read name
 declare -A emp_names
 while read -r line; do
     emp_id=$(echo "$line" | awk '{print $1}')
@@ -49,7 +48,7 @@ while read -r line; do
     emp_names["$emp_id"]="$emp_name"
 done < "$special_marker"
 
-# Function to generate attendance report for a given employee ID
+# generate report
 generate_report() {
     emp_id=$1
     emp_name=${emp_names["$emp_id"]}
@@ -86,7 +85,6 @@ generate_report() {
     echo
 }
 
-# Generate reports for specified employee IDs
 for emp_id in "${emp_ids[@]}"; do
     generate_report "$emp_id"
 done
