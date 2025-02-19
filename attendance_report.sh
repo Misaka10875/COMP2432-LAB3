@@ -15,11 +15,13 @@ special_marker=""
 for arg in "$@"; do
     if [ "$emp_section" -eq 1 ]; then
         emp_ids+=("$arg")
-    elif [ "$arg" == "employee" ]; then
-        special_marker="employees.dat"
-        emp_section=1
     elif [ "$emp_section" -eq 0 ]; then
-        dept_files+=("$arg")
+        if [ "$arg" == "employee" ]; then
+            special_marker="employees.dat"
+            emp_section=1
+        else
+            dept_files+=("$arg")
+        fi
     else
         special_marker="$arg.dat"
         emp_section=1
