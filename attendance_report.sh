@@ -25,6 +25,7 @@ for arg in "$@"; do
     else
         special_marker="$arg.dat"
         emp_section=1
+        echo "now $special_marker"
     fi
 done
 
